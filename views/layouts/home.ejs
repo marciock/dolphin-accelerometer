@@ -1,0 +1,227 @@
+<style>
+    .flip{
+        border: 1px solid black
+    }
+
+</style>
+
+<canvas id="canvas" width="1900" height="800"></canvas>
+<div id="info"></div>
+<script src="/socket.io/socket.io.js"></script>
+    
+<script>
+window.onload=()=>{
+   const socket=io();
+    const info=document.getElementById('info')
+     
+
+   
+
+    let dx=20;
+    let dy=20;
+    let x=30;
+    let y=200;
+    let W=1900;
+    let H=768;
+    let img = new Image();
+    let position=1;
+    let numPositions=5;
+    let canvas;
+    let ctx;
+    let angle=0;
+
+
+     socket.on('dowup',(data)=>{
+   if(data <-7){
+        if(y+dy <H){
+                
+                y +=dy;
+                                 
+                position ++;
+              
+                if(position ==numPositions) position=1;
+               
+               
+            }   
+        if(y+dy ===720){
+            y=50;
+            position ++;
+              
+              if(position ==numPositions) position=1;
+        }
+           
+     }  
+    if(data >7){
+        if(y-dy <H){
+                
+                y -=dy;
+                            
+                position ++;
+              
+                if(position ==numPositions) position=1;
+                
+            }
+            if(y-dy ===0){
+            y=50;
+            position ++;
+              
+              if(position ==numPositions) position=1;
+        }
+            
+     }
+         
+
+      })   
+
+      socket.on('leftright',(data)=>{ 
+
+        if(data < 90){
+            if(x+dx <W){
+                x +=dx;
+                position ++;
+                if(position ==numPositions) position=1;
+                
+               
+            }
+            if(x+dx===W-20){
+                position ++;
+                if(position ==numPositions) position=1;
+                x=30;
+            }
+           
+           
+        }
+        if(data >90){
+            if(x-dx <W){
+               
+               x -=dx;
+               position ++;
+               if(position ==numPositions) position=1;
+              
+           }
+           if(x-dx<0){
+               x=30;
+           }
+           
+          
+          
+        }
+      })
+
+   function myDown(event){
+       switch (event.keyCode) {
+           case 39:
+           console.log(event.keyCode)
+            if(x+dx <W){
+                x +=dx;
+                position ++;
+                if(position ==numPositions) position=1;
+            }
+               
+               break;
+               
+           case 37:
+           console.log(event.keyCode)
+            if(x-dx <W){
+               
+                x -=dx;
+                position ++;
+                if(position ==numPositions) position=1;
+            }
+               
+               break;
+
+            case 40:
+           console.log(event.keyCode)
+            if(y+dy <H){
+                
+                y +=dy;
+
+                                              
+                position ++;
+
+              
+                if(position ==numPositions) position=1;
+            }
+               
+               break;
+
+            case 38:
+           console.log(event.keyCode)
+            if(y-dy <=H){
+                
+                y -=dy;
+
+                                              
+                position ++;
+
+              
+                if(position ==numPositions) position=1;
+            }
+               
+               break;
+       
+       }
+   }
+
+ 
+
+   const draw=()=>{
+       img.src='images/png/0'+position+'.png';
+       
+     
+       ctx.drawImage(img,x,y,'300','80');
+      
+      
+   }       
+
+   const clearScreen=()=>{
+       ctx.fillStyle="rgb(233,233,233)";
+      
+       ctx.beginPath();
+       ctx.rect(0,0,W,H);
+
+       ctx.closePath();
+       ctx.fill();
+     
+   }
+
+   const update=()=>{
+   
+       clearScreen();
+       draw();
+   }
+
+   const init=()=>{
+    
+     canvas=document.getElementById('canvas');
+     ctx=canvas.getContext('2d');
+    
+       
+  
+    return setInterval(update,100);
+    
+    //update()
+   }
+
+   const go=()=>{
+    socket.on('command',(data)=>{
+       console.log(data);
+      })   
+    }
+   
+   
+   window.addEventListener('keydown',myDown);
+
+  
+  
+  
+   init();
+
+  
+}
+   
+   
+     
+    
+</script>
